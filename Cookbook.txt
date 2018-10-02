@@ -1,0 +1,123 @@
+#####################################################################################################                                                                                                        #
+# Hi Buddy!
+#
+# This Cookbook contains commands for setting up "Celery: Distributed Task Queue"  with "RabbitMQ: Message Broker.". 
+# For more information, visit: http://www.celeryproject.org/
+#
+#
+# System: Ubuntu LTS 16.04	       
+#	  apt (Advanced Packaging Tool)
+#
+#
+####################################################################################################
+
+Installation: Command_Line
+
+
+1. pip install celery
+
+2. sudo apt-get install rabbitmq-server
+
+######################################################################################################
+
+Set Config:
+#Following Configuration enables celery to communicate with Rabbitmq Message broker.
+#We need to create a virtual host and user, then set user permissions so it can access the virtual host.
+
+# add user 'rdbagwe' with password 'rdbagwe123'
+3. rabbitmqctl add_user rdbagwe rdbagwe123
+
+# add virtual host 'rdbagwe_vhost'
+4. rabbitmqctl add_vhost rdbagwe_vhost
+
+
+# add user tag 'rdbagwe_tag' for user 'rdbagwe'
+5. rabbitmqctl set_user_tags rdbagwe rdbagwe_tag
+
+
+# set permission for user 'rdbagwe' on virtual host 'rdbagwe_vhost'
+6. rabbitmqctl set_permissions -p rdbagwe_vhost rdbagwe ".*" ".*" ".*"
+
+#The ".*" ".*" ".*" string at the end of the above command means that the user “rdbagwe” will have all configure, write and read permissions.
+#more info http://www.rabbitmq.com/access-control.html
+
+
+##########################################################################################################
+
+#Once you install rabbitmq-server it will be up and running, if not start using: 
+
+7. sudo rabbitmq-server
+
+#########################################################################################################
+
+#To Create a worker
+
+8. celery -A CeleryApp worker --loglevel=debug
+
+#Worker can also be created by using nohup which is less cumbersome 
+
+9. nohup celery -A CeleryApp worker --loglevel=INFO > ./celery.log &
+
+#We can also create multiple workers by assigining different names
+
+10. celery -A CeleryApp worker --loglevel=INFO --concurrency=10 -n worker1@%h
+
+11. celery -A CeleryApp worker --loglevel=INFO --concurrency=10 -n worker1@%h
+
+12. celery -A CeleryApp worker --loglevel=INFO --concurrency=10 -n worker1@%h
+
+#%h is the hostname and a very important
+
+
+##########################################################################################################
+
+#Monitoring the celery workers:
+ 
+#To check the status 
+
+13. celery -A CeleryApp inspect active
+
+14. celery -A CeleryApp status
+
+#To Remove celery workers
+
+15. killall -9 celery
+
+##########################################################################################################
+
+
+#Flower is a web-based monitoring tool that can be used instead of the celery command.
+
+16. pip install wheel flower
+
+#Navigate to the directory with your Celery app and start Flower. 5555 is the default port, but this can be changed using the --port flag:
+#cd /rdbagwe/Basics/Celery_RabbitMQ_Basics
+
+17. celery -A CeleryApp flower --port=5555
+
+
+###########################################################################################################
+
+Standard OP
+
+OP
+
+(PyVE) rohanbagwe@rohanbagwe:~/Basics/Celery_RabbitMQ_Basics$ celery -A CeleryApp worker --loglevel=INFO --concurrency=10 -n worker1@%h
+ 
+ -------------- worker1@rohanbagwe v4.2.0 (windowlicker)
+---- **** ----- 
+--- * ***  * -- Linux-4.13.0-36-generic-x86_64-with-debian-stretch-sid 2018-07-04 00:34:37
+-- * - **** --- 
+- ** ---------- [config]
+- ** ---------- .> app:         CeleryApp:0x7fef1039e2b0
+- ** ---------- .> transport:   amqp://rdbagwe:**@localhost:5672/rdbawge_vhost
+- ** ---------- .> results:     rpc://
+- *** --- * --- .> concurrency: 10 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+				
+				
+				
+
